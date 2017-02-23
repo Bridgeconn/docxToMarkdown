@@ -1,17 +1,12 @@
 #!/usr/bin/env ruby
 
 require 'docx'
-require 'yomu'
-require 'libreconv'
 
 file_data = []
 name_file = "test"
 
 directory_name = "output_folder"
 Dir.mkdir(directory_name) unless File.exists?(directory_name)
-
-output_name = "#{directory_name}/#{File.basename(name_file, '.*')}.tab"
-output = File.open(output_name, 'w')
 
 Dir.glob("**/*.docx") do |file_name|
   doc = Docx::Document.open(file_name)
@@ -29,29 +24,24 @@ Dir.glob("**/*.docx") do |file_name|
   end
 end
 
-hash_file = {}
-flag = false
-
 file_data.each_with_index do |l, d|
   if l.include? file_data[d]
-    
-    flag = true
+
     if (l[0].to_i != 0)
-      
-      hash_file[file_data[d]] = file_data[d+1]
-
-      # md_des << file_data - file_data[d]
-      # md_description << md_des - file_data[d+1]
+      md_file_name = file_data[d].split(".")
+      md_file_name.each do |r|
+        output_name = "#{directory_name}/#{File.basename(r, '.*')}.md"
+        output = File.open(output_name, 'w')
+        
+        md_file_heading = file_data[d+1]
+        md_file_description = file_data[d+2]
+        output << "#"+"#{md_file_heading}\n\n"
+        output << "#{md_file_description} \n"
+      end
       
     end
-    if flag
-      hash_file[file_data[d]] = file_data[d+2]
-      flag = false
-    end
-
   end
 end
-p hash_file
 
 output.close
 
