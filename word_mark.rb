@@ -11,6 +11,7 @@ name_file = "test"
 t = ""
 array_desc = []
 heading_hash = {}
+all_data = {}
 temp = ""
 output = ""
 folder_name = ""
@@ -18,6 +19,7 @@ directory_name = ""
 
 flag = true
 count = 0
+md_file_name = ''
 Dir.glob("**/*.docx") do |file_name|
   doc = Docx::Document.open(file_name)
 
@@ -38,7 +40,7 @@ Dir.glob("**/*.docx") do |file_name|
       
       if ((l.strip)[0].to_i != 0)
         md_file_name = file_data[d].split(".")
-        
+        puts md_file_name[0].strip
         #start folder name
         if flag
           directory_name =  md_file_name[0].to_i
@@ -50,6 +52,7 @@ Dir.glob("**/*.docx") do |file_name|
 
         if(array_desc.size > 0)
           heading_hash[temp] = array_desc
+          all_data[md_file_name[0].strip] = heading_hash
           array_desc = []
         end 
       else
@@ -63,25 +66,23 @@ Dir.glob("**/*.docx") do |file_name|
 
   if(array_desc.size> 0)
     heading_hash[temp] = array_desc
+    all_data[md_file_name[0].strip] = heading_hash
     array_desc = []
   end
 
-  puts count-1
-  puts directory_name
+  all_data.each do |k, v|
+    v.each do |(hk, hv)|
+      if k != ""
+        Dir.mkdir("#{k}") unless File.exists?("#{k}")
+        output_name = "#{k}/#{File.basename(1.to_s, '.*')}.md"
+        output = File.open(output_name, 'w')
 
-  heading_hash.each_with_index do |(k, v), indx|
-    if k != ""
-      puts indx
-      directory_name += (indx-1)
-      Dir.mkdir("#{directory_name}") unless File.exists?("#{directory_name}")
-      output_name = "#{directory_name}/#{File.basename(1.to_s, '.*')}.md"
-      output = File.open(output_name, 'w')
-
-      output << "#"+"#{k}\n\n"
-      v.each do |des|
-        output << "#{des} \n"
-      end
-    end    
+        output << "#"+"#{hk}\n\n"
+        hv.each do |des|
+          output << "#{des} \n"
+        end
+      end    
+    end
   end
 
 end
